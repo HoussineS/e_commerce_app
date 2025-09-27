@@ -27,10 +27,12 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
   int selectedColorIndex = 0;
   int selectedSizeIndex = 0;
 
-  @override
   Widget build(BuildContext context) {
     final provider = ref.watch(favProvider);
     final cp = ref.watch(cartsProvider);
+    bool isInCart = cp.getCarts.any(
+      (cartItem) => cartItem.productId == widget.itemId!,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail product'),
@@ -219,22 +221,26 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    final productId = widget.itemId!;
-                    final productData = widget.item;
-                    cp.addToCart(
-                      productId,
-                      productData,
-                      colorToName(productData.fcolor[selectedColorIndex]),
-                      productData.size[selectedSizeIndex],
-                    );
-                    //notify user
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${productData.name} added to cart'),
-                      ),
-                    );
-                  },
+                  onTap: isInCart
+                      ? null
+                      : () {
+                          final productId = widget.itemId!;
+                          final productData = widget.item;
+                          cp.addToCart(
+                            productId,
+                            productData,
+                            colorToName(productData.fcolor[selectedColorIndex]),
+                            productData.size[selectedSizeIndex],
+                          );
+                          //notify user
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '${productData.name} added to cart',
+                              ),
+                            ),
+                          );
+                        },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
@@ -246,7 +252,7 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
                         Icon(Iconsax.shopping_bag, color: Colors.black),
                         SizedBox(width: 4),
                         Text(
-                          'ADD TO CART',
+                          isInCart ? "Product alreday on cart" : 'ADD TO CART',
                           style: TextStyle(
                             color: Colors.black,
                             letterSpacing: -1,
@@ -263,20 +269,36 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => OrderConfirmation(
-                          carts: [
-                            CartModel(
-                              productId: widget.itemId!,
-                              productData: widget.item,
-                              selectedColor: colorToName(
-                                widget.item.fcolor[selectedColorIndex],
+                        builder: (context) {
+                          if (isInCart) {
+                            final itemCartInfo = cp.getCarts.firstWhere(
+                              (cartItem) => cartItem.productId == widget.itemId,
+                            );
+                            return OrderConfirmation(
+                              carts: [itemCartInfo],
+                              total: double.parse(
+                                (widget.item.price * itemCartInfo.quantity + 4.99).toStringAsFixed(2),
                               ),
-                              selectedSize: widget.item.size[selectedSizeIndex],
-                              quantity: 1,
+                            );
+                          }
+                          return OrderConfirmation(
+                            carts: [
+                              CartModel(
+                                productId: widget.itemId!,
+                                productData: widget.item,
+                                selectedColor: colorToName(
+                                  widget.item.fcolor[selectedColorIndex],
+                                ),
+                                selectedSize:
+                                    widget.item.size[selectedSizeIndex],
+                                quantity: 1,
+                              ),
+                            ],
+                            total: double.parse(
+                              (widget.item.price + 4.99).toStringAsFixed(2),
                             ),
-                          ],
-                          total: double.parse((widget.item.price + 4.99).toStringAsFixed(2)) ,
-                        ),
+                          );
+                        },
                       ),
                     );
                   },

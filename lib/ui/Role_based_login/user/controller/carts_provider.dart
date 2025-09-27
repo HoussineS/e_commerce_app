@@ -89,19 +89,35 @@ class CartsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> rest() async {
-    _carts = [];
+  Future<void> rest(List<CartModel> cartRemoved) async {
+    // Remove from local list
+    _carts.removeWhere((cartItem) {
+      return cartRemoved.any(
+        (itemRemoveFromCart) =>
+            cartItem.productId == itemRemoveFromCart.productId,
+      );
+    });
+
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final userCartRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('userCart');
-    final cartSnapshot = await userCartRef.get();
-    // Run a batch for efficiency
+
+    // Batch write for efficiency
     WriteBatch batch = FirebaseFirestore.instance.batch();
-    for (var doc in cartSnapshot.docs) {
-      batch.delete(doc.reference);
+
+    // For each cart item to remove, query Firestore by productId
+    for (var item in cartRemoved) {
+      final querySnapshot = await userCartRef
+          .where('productId', isEqualTo: item.productId)
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
     }
+
     await batch.commit();
     notifyListeners();
   }
@@ -113,8 +129,9 @@ class CartsProvider with ChangeNotifier {
     required String adreess,
     required double totalPrice,
     required BuildContext context,
+    required List<CartModel> cartOrderd,
   }) async {
-    if (_carts.isEmpty) {
+    if (cartOrderd.isEmpty) {
       return;
     }
     final paymentRef = FirebaseFirestore.instance
@@ -133,7 +150,7 @@ class CartsProvider with ChangeNotifier {
         transaction.update(paymentRef, {'balance': newBalance});
         //create order data
         final orderData = {
-          'items': _carts.map((item) {
+          'items': cartOrderd.map((item) {
             return {
               'productId': item.productId,
               'quantity': item.quantity,
@@ -157,7 +174,7 @@ class CartsProvider with ChangeNotifier {
             .doc();
         transaction.set(orderRef, orderData);
       });
-      await rest();
+      await rest(cartOrderd);
     } catch (e) {
       throw (e.toString());
     }

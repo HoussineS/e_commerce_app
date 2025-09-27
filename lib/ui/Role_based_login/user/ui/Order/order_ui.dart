@@ -25,7 +25,7 @@ class _OrderUiState extends State<OrderUi> {
       appBar: AppBar(title: Text('Orders'), centerTitle: true),
       backgroundColor: Colors.grey[100],
       body: StreamBuilder(
-        stream: ordersRef.snapshots(),
+        stream: ordersRef.orderBy('createdAt', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());

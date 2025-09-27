@@ -464,6 +464,7 @@ class _OrderConfirmationState extends ConsumerState<OrderConfirmation> {
       adreess: address,
       totalPrice: widget.total,
       context: context,
+      cartOrderd: widget.carts
     );
     Navigator.of(
       // ignore: use_build_context_synchronously
