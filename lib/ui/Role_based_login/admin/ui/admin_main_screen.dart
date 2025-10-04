@@ -1,7 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_app/ui/Role_based_login/admin/controller/add_item_controller.dart';
 import 'package:e_commerce_app/ui/Role_based_login/admin/ui/add_items.dart';
+import 'package:e_commerce_app/ui/Role_based_login/admin/ui/orders_screens.dart';
+import 'package:e_commerce_app/ui/Role_based_login/user/controller/carts_provider.dart';
 import 'package:e_commerce_app/ui/login_screen.dart';
 import 'package:e_commerce_app/widget/item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,7 +26,6 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
   final items = FirebaseFirestore.instance.collection('items');
   String? selectedCategorie;
   List<String> categories = ['All'];
-
 
   @override
   void initState() {
@@ -59,25 +61,40 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
           Stack(
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => OrdersScreens()));
+                },
                 icon: Icon(Icons.receipt_long, color: Colors.black),
               ),
               Positioned(
                 top: 5,
                 right: 8,
-                child: CircleAvatar(
-                  backgroundColor: Colors.red,
-                  radius: 9,
-                  child: Center(
-                    child: Text(
-                      '0',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collectionGroup('orders')
+                      .snapshots(),
+                  builder: (context, asyncSnapshot) {
+                    if (!asyncSnapshot.hasData) {
+                      return CircularProgressIndicator();
+                    }
+                    int numbreOfOrders = asyncSnapshot.data!.docs.length;
+                    return CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 9,
+                      child: Center(
+                        child: Text(
+                          '$numbreOfOrders',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -105,6 +122,8 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
           IconButton(
             onPressed: () {
               FirebaseAuth.instance.signOut();
+              ref.invalidate(cartsProvider);
+              ref.invalidate(addItemProvier);
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => LoginScreen()),
               );
@@ -124,7 +143,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
               return CircularProgressIndicator();
             }
             if (snapshot.hasError) {
-              return Center(child: Text('Server erre try again later'));
+              return Center(child: Text('Server error try again later'));
             }
             if (snapshot.hasData) {
               final data = snapshot.data!.docs;
@@ -141,7 +160,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
                 },
               );
             }
-            return Center(child: Text('No uploadit item yet!'));
+            return Center(child: Text('No uploaded item yet!'));
           },
         ),
       ),

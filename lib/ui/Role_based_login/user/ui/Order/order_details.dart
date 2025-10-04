@@ -1,14 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class OrderDetails extends StatelessWidget {
+class OrderDetails extends StatefulWidget {
   final String orderId;
-  const OrderDetails({super.key, required this.orderId});
+  final String userId;
+  final String userRole;
+  const OrderDetails({
+    super.key,
+    required this.orderId,
+    required this.userId,
+    required this.userRole,
+  });
 
   @override
+  State<OrderDetails> createState() => _OrderDetailsState();
+}
+
+class _OrderDetailsState extends State<OrderDetails> {
+  @override
   Widget build(BuildContext context) {
+    bool isWaiting = false;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -20,9 +32,9 @@ class OrderDetails extends StatelessWidget {
       body: FutureBuilder(
         future: FirebaseFirestore.instance
             .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .doc(widget.userId)
             .collection('orders')
-            .doc(orderId)
+            .doc(widget.orderId)
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -57,7 +69,7 @@ class OrderDetails extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Order ID: $orderId",
+                          "Order ID: ${widget.orderId}",
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -66,9 +78,21 @@ class OrderDetails extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text("Address: ${order['adreess'] ?? 'N/A'}"),
                         Text(
-                          "Date: ${DateFormat('dd MMM yyyy – kk:mm').format((order['createdAt'] as Timestamp).toDate())}",
+                          "Date: ${DateFormat('dd MM yyyy – kk:mm').format((order['createdAt'] as Timestamp).toDate())}",
                         ),
-                        Text("Status: ${order['status'] ?? 'Pending'}"),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 8,
+                              backgroundColor: order['status'] == 'Confirmed'
+                                  ? Colors.green
+                                  : Colors.orange,
+                            ),
+                            SizedBox(width: 3),
+                            Text("Status: ${order['status'] ?? 'Pending'}"),
+                          ],
+                        ),
+
                         const Divider(height: 24),
                         Text(
                           "Total Price: \$${order['toltalPrice'].toStringAsFixed(2)}",
@@ -81,6 +105,7 @@ class OrderDetails extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
 
                 // --- Items Section ---
@@ -89,13 +114,13 @@ class OrderDetails extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
+
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
-                    var item = items[index];
-
+                    final item = items[index];
                     return Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -135,6 +160,77 @@ class OrderDetails extends StatelessWidget {
                     );
                   },
                 ),
+
+                const SizedBox(height: 24),
+
+                //  --- Confirm button (only for Admin) ---
+                if (widget.userRole == 'Admin')
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.check_circle_outline),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        label: isWaiting
+                            ? CircularProgressIndicator()
+                            : Text(
+                                "Confirm Order",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                        onPressed: order['status'] == 'pending'
+                            ? () async {
+                                try {
+                                  setState(() {
+                                    isWaiting = true;
+                                  });
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(widget.userId)
+                                      .collection('orders')
+                                      .doc(widget.orderId)
+                                      .update({
+                                        'status': 'Confirmed',
+                                        'confirmedAt':
+                                            FieldValue.serverTimestamp(),
+                                      });
+                                  setState(() {
+                                    isWaiting = false;
+                                  });
+                                  // ignore: use_build_context_synchronously
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "✅ Order confirmed successfully",
+                                      ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  setState(() {
+                                    isWaiting = false;
+                                  });
+                                  // ignore: use_build_context_synchronously
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "❌ Error confirming order: $e",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            : null,
+                      ),
+                    ),
+                  ),
               ],
             ),
           );

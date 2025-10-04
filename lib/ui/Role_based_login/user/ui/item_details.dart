@@ -27,6 +27,7 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
   int selectedColorIndex = 0;
   int selectedSizeIndex = 0;
 
+  @override
   Widget build(BuildContext context) {
     final provider = ref.watch(favProvider);
     final cp = ref.watch(cartsProvider);

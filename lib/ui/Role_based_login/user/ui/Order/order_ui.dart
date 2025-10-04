@@ -63,7 +63,7 @@ class _OrderUiState extends State<OrderUi> {
                     children: [
                       Text('Total: ${price.toStringAsFixed(2)}'),
                       Text(
-                        'Date: ${DateFormat('dd/m/yyyy - kk:mm').format((order['createdAt'] as Timestamp).toDate())}',
+                        'Date: ${DateFormat('dd/MM/yyyy - kk:mm').format((order['createdAt'] as Timestamp).toDate())}',
                       ),
                     ],
                   ),
@@ -71,7 +71,7 @@ class _OrderUiState extends State<OrderUi> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => OrderDetails(orderId: orderId),
+                        builder: (_) => OrderDetails(orderId: orderId,userId: userId,userRole: 'User',),
                       ),
                     );
                   },
