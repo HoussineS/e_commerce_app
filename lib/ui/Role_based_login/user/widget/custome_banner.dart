@@ -1,5 +1,6 @@
 import 'package:e_commerce_app/Core/models/screen_config.dart';
 import 'package:e_commerce_app/Core/utils/colors.dart';
+import 'package:e_commerce_app/ui/Role_based_login/user/ui/all_products.dart';
 import 'package:flutter/material.dart';
 
 class CustomeBanner extends StatelessWidget {
@@ -58,7 +59,11 @@ class CustomeBanner extends StatelessWidget {
                   ],
                 ),
                 MaterialButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (_) => AllProducts()));
+                  },
                   color: Colors.black,
                   child: Text(
                     'SHOP NOW',

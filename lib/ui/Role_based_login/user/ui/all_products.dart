@@ -1,49 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_app/Core/models/screen_config.dart';
-import 'package:e_commerce_app/ui/Role_based_login/user/models/app_model.dart';
-import 'package:e_commerce_app/ui/Role_based_login/user/models/sub_category.dart';
-import 'package:e_commerce_app/ui/Role_based_login/user/widget/category_grid.dart';
-import 'package:e_commerce_app/ui/Role_based_login/user/widget/sub_categorie_widget.dart';
 import 'package:e_commerce_app/Core/utils/colors.dart';
+import 'package:e_commerce_app/ui/Role_based_login/user/models/app_model.dart';
+import 'package:e_commerce_app/ui/Role_based_login/user/widget/category_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-class CategorieItems extends StatefulWidget {
-  final String selectedCategory;
-  final String category;
-  const CategorieItems({
-    super.key,
-    required this.category,
-    required this.selectedCategory,
-  });
+class AllProducts extends StatefulWidget {
+  const AllProducts({super.key});
 
   @override
-  State<CategorieItems> createState() => _CategorieItemsState();
+  State<AllProducts> createState() => _AllProductsState();
 }
 
-class _CategorieItemsState extends State<CategorieItems> {
-  TextEditingController serachController = TextEditingController();
-  List<QueryDocumentSnapshot> allIem = [];
+class _AllProductsState extends State<AllProducts> {
+  final CollectionReference itemCollection = FirebaseFirestore.instance
+      .collection('items');
+
+  List<QueryDocumentSnapshot> allItems = [];
   List<QueryDocumentSnapshot> filtredItem = [];
-  @override
-  void initState() {
-    serachController.addListener(_onSearchBarChanged);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    serachController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchBarChanged() {
-    final serchTerm = serachController.text.toString().toLowerCase();
+  void _onSearchBarChanged(String userInput) {
+    final serchTerm = userInput.toLowerCase();
     setState(() {
-      filtredItem = allIem.where((item) {
+      filtredItem = allItems.where((item) {
         final itemData = item.data() as Map<String, dynamic>;
         final itemName = itemData['name'] as String;
-        print(itemName);
         return itemName.toLowerCase().contains(serchTerm);
       }).toList();
     });
@@ -51,8 +32,6 @@ class _CategorieItemsState extends State<CategorieItems> {
 
   @override
   Widget build(BuildContext context) {
-    final CollectionReference itemCollection = FirebaseFirestore.instance
-        .collection('items');
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -73,9 +52,9 @@ class _CategorieItemsState extends State<CategorieItems> {
                     child: SizedBox(
                       height: ScreenConfig.screenHeight * 0.04,
                       child: TextField(
-                        controller: serachController,
+                        onChanged: _onSearchBarChanged,
                         decoration: InputDecoration(
-                          hintText: "${widget.category}'s Fashion",
+                          hintText: "serach for producsts",
                           hintStyle: const TextStyle(color: Colors.black26),
                           filled: true,
                           fillColor: fbackroudColor2,
@@ -125,24 +104,10 @@ class _CategorieItemsState extends State<CategorieItems> {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Row(
-                  children: List.generate(
-                    listOfSubCategory.length,
-                    (index) =>
-                        SubCategorieWidget(subCateg: listOfSubCategory[index]),
-                  ),
-                ),
-              ),
-            ),
+
             Expanded(
               child: StreamBuilder(
-                stream: itemCollection
-                    .where('category', isEqualTo: widget.selectedCategory)
-                    .snapshots(),
+                stream: itemCollection.snapshots(),
                 builder: (context, asyncSnapshot) {
                   if (asyncSnapshot.connectionState ==
                       ConnectionState.waiting) {
@@ -151,7 +116,7 @@ class _CategorieItemsState extends State<CategorieItems> {
                   if (asyncSnapshot.hasError) {
                     return Center(
                       child: Text(
-                        'Error on filtred Category ${asyncSnapshot.error}',
+                        'Error on filtred ${asyncSnapshot.error}',
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 18,
@@ -162,8 +127,8 @@ class _CategorieItemsState extends State<CategorieItems> {
                   }
                   if (asyncSnapshot.hasData) {
                     final items = asyncSnapshot.data!.docs;
-                    if (allIem.isEmpty) {
-                      allIem = items;
+                    if (allItems.isEmpty) {
+                      allItems = items;
                       filtredItem = items;
                     }
                     if (filtredItem.isEmpty) {
