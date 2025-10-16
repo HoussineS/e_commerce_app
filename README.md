@@ -21,4 +21,39 @@ And also a Admin to CRUD a protect and aslo for valitation user orders.
 - (Optional) Firebase or Supabase account for backend features  
 
 ---
+## 🖼️ App Screenshots
+
+### 👤 Authentication Screens
+<p align="center">
+  <img src="assets/app_images/login_screen.jpg" alt="Login Screen" width="300"/>
+  <img src="assets/app_images/signup_screen.jpg" alt="Signup Screen" width="300"/>
+</p>
+
+---
+
+### 🏠 User App
+<p align="center">
+  <img src="assets/app_images/home_user_screen.jpg" alt="Home User Screen" width="300"/>
+  <img src="assets/app_images/product_detail_screen.jpg" alt="Product Detail Screen" width="300"/>
+  <img src="assets/app_images/cart_screen.jpg" alt="Cart Screen" width="300"/>
+</p>
+
+<p align="center">
+  <img src="assets/app_images/payment_methode_screen.jpg" alt="Payment Method Screen" width="300"/>
+  <img src="assets/app_images/order_confirmation_screen.jpg" alt="Order Confirmation Screen" width="300"/>
+  <img src="assets/app_images/order_confirmtion_screen2.jpg" alt="Order Confirmation Screen 2" width="300"/>
+</p>
+
+<p align="center">
+  <img src="assets/app_images/user_order_list.jpg" alt="User Order List" width="300"/>
+  <img src="assets/app_images/user_order_detail_screen.jpg" alt="User Order Detail Screen" width="300"/>
+  <img src="assets/app_images/user_fv_screen.jpg" alt="User Favorites Screen" width="300"/>
+</p>
+
+<p align="center">
+  <img src="assets/app_images/user_profile_screen.jpg" alt="User Profile Screen" width="300"/>
+  <img src="assets/app_images/serach_section.jpg" alt="Search Section" width="300"/>
+</p>
+
+---
 
