@@ -102,7 +102,7 @@ class CartItem extends ConsumerWidget {
                             '\$${finalPrice.toStringAsFixed(2)}',
                             style: TextStyle(color: Colors.pink, fontSize: 20),
                           ),
-                          SizedBox(width: 50),
+                          SizedBox(width: ScreenConfig.screenWidth * 0.08),
                           GestureDetector(
                             onTap: () async {
                               if (!isWaiting) {

@@ -15,6 +15,16 @@ class CategoryGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    int crossAxisCount = 2;
+    double itemWidth =
+        (ScreenConfig.screenWidth - (16 * (crossAxisCount + 1))) /
+        crossAxisCount; // minus padding
+    double itemHeight =
+        ScreenConfig.screenHeight * 0.35; // 35% of screen height
+
+    double aspectRatio =
+        itemWidth / itemHeight; //this for dynamic aspect ratio for all screens
+
     List<AppModel> products = [];
     final provier = ref.watch(favProvider);
     for (var element in product) {
@@ -46,10 +56,10 @@ class CategoryGrid extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       itemCount: product.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.6,
+        childAspectRatio: aspectRatio,
       ),
       itemBuilder: (context, index) {
         final itemId = product[index].id;
@@ -136,6 +146,7 @@ class CategoryGrid extends ConsumerWidget {
               ),
               SizedBox(
                 width: ScreenConfig.screenWidth * 0.45,
+
                 child: Text(
                   item.name,
                   maxLines: 1,

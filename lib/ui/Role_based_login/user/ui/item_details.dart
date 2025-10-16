@@ -243,6 +243,7 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
                           );
                         },
                   child: Container(
+                    width: ScreenConfig.screenWidth * 0.4,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black),
@@ -254,9 +255,11 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
                         SizedBox(width: 4),
                         Text(
                           isInCart ? "Product alreday on cart" : 'ADD TO CART',
+
                           style: TextStyle(
                             color: Colors.black,
                             letterSpacing: -1,
+                            fontSize: ScreenConfig.screenWidth * 0.035,
                           ),
                         ),
                       ],
@@ -278,7 +281,9 @@ class _ItemDetailsState extends ConsumerState<ItemDetails> {
                             return OrderConfirmation(
                               carts: [itemCartInfo],
                               total: double.parse(
-                                (widget.item.price * itemCartInfo.quantity + 4.99).toStringAsFixed(2),
+                                (widget.item.price * itemCartInfo.quantity +
+                                        4.99)
+                                    .toStringAsFixed(2),
                               ),
                             );
                           }
