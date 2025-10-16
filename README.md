@@ -56,4 +56,18 @@ And also a Admin to CRUD a protect and aslo for valitation user orders.
 </p>
 
 ---
+### 🛠️ Admin Panel
+<p align="center">
+  <img src="assets/app_images/admin_home_screen.jpg" alt="Admin Home Screen" width="300"/>
+  <img src="assets/app_images/admin_add_item.jpg" alt="Admin Add Item" width="300"/>
+  <img src="assets/app_images/admin_add_item2.jpg" alt="Admin Add Item 2" width="300"/>
+</p>
 
+<p align="center">
+  <img src="assets/app_images/admin_filter_product.jpg" alt="Admin Filter Product" width="300"/>
+  <img src="assets/app_images/list_of_orders_for_admin.jpg" alt="List of Orders for Admin" width="300"/>
+  <img src="assets/app_images/admin_order_confirmation.jpg" alt="Admin Order Confirmation" width="300"/>
+  <img src="assets/app_images/admin_order_confirmation2.jpg" alt="Admin Order Confirmation 2" width="300"/>
+</p>
+
+---
